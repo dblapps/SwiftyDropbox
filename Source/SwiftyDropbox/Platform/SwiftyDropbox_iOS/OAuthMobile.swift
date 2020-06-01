@@ -51,7 +51,7 @@ extension DropboxClientsManager {
     ///     API calls with expired Access Token will fail with AuthError. An expired Access Token must be refreshed
     ///     in order to continue to access Dropbox APIs.
     ///
-    ///     API clients set up by `DropboxClientsManager` will get token refresh logics for free.
+    ///     API clients set up by `DropboxClientsManager` will get token refresh logic for free.
     ///     If you need to set up `DropboxClient`/`DropboxTeamClient` without `DropboxClientsManager`,
     ///     you will have to set up the clients with an appropriate `AccessTokenProvider`.
     public static func authorizeFromControllerV2(

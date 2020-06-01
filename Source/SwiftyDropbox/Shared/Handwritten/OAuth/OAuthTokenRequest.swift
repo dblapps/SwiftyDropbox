@@ -47,14 +47,22 @@ class OAuthTokenRefreshRequest: OAuthTokenRequest {
     private let uid: String
     private let refreshToken: String
 
-    init(uid: String, refreshToken: String, scopes: [String]?, appKey: String, locale: String) {
+    /// Designated Initializer.
+    /// 
+    /// - Parameters:
+    ///     - uid: User id.
+    ///     - refreshToken: Refresh token.
+    ///     - scopes: An array of scopes to be granted for the refreshed access token.
+    ///     - appKey: The API app key.
+    ///     - locale: User's preferred locale.
+    init(uid: String, refreshToken: String, scopes: [String], appKey: String, locale: String) {
         self.uid = uid
         self.refreshToken = refreshToken
         var params = [
             "grant_type": "refresh_token",
             "refresh_token": refreshToken,
         ]
-        if let scopes = scopes, !scopes.isEmpty {
+        if !scopes.isEmpty {
             params["scope"] = scopes.joined(separator: " ")
         }
         super.init(appKey: appKey, locale: locale, params: params)

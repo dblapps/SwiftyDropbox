@@ -6,7 +6,10 @@ import Foundation
 
 /// Protocol for objects that provide an access token and offer a way to refresh (short-lived) token.
 public protocol AccessTokenProvider: Any {
+    /// Returns an access token for making user auth API calls.
     var accessToken: String { get }
+    /// This refreshes the access token if it's expired or about to expire.
+    /// The refresh result will be passed back via the completion block.
     func refreshAccessTokenIfNecessary(completion: @escaping DropboxOAuthCompletion)
 }
 
@@ -22,14 +25,10 @@ public struct LongLivedAccessTokenProvider: AccessTokenProvider {
 /// Wrapper for short-lived token.
 public class ShortLivedAccessTokenProvider: AccessTokenProvider {
     public var accessToken: String {
-        if Thread.isMainThread {
-            return token.accessToken
-        } else {
-            return mainQueue.sync { return token.accessToken }
-        }
+        queue.sync { token.accessToken }
     }
 
-    private let mainQueue = DispatchQueue.main
+    private let queue = DispatchQueue(label: "ShortLivedAccessTokenProvider.queue", attributes: .concurrent)
     private let tokenRefresher: AccessTokenRefreshing
     private var token: DropboxAccessToken
     private var completionBlocks = [(DropboxOAuthResult?) -> Void]()
@@ -40,7 +39,8 @@ public class ShortLivedAccessTokenProvider: AccessTokenProvider {
             return false
         }
         let fiveMinutesBeforeExpire = Date(timeIntervalSince1970: expirationTimestamp - 300)
-        return Date() > fiveMinutesBeforeExpire
+        let dateHasPassed = fiveMinutesBeforeExpire.timeIntervalSinceNow < 0
+        return dateHasPassed
     }
 
     private var refreshInProgress: Bool {
@@ -56,7 +56,7 @@ public class ShortLivedAccessTokenProvider: AccessTokenProvider {
     }
 
     public func refreshAccessTokenIfNecessary(completion: @escaping DropboxOAuthCompletion) {
-        mainQueue.async {
+        queue.async(flags: .barrier) {
             guard self.shouldRefresh else {
                 completion(nil)
                 return
@@ -64,7 +64,7 @@ public class ShortLivedAccessTokenProvider: AccessTokenProvider {
             // Ensure subsequent calls don't initiate more refresh requests, if one is in progress.
             if !self.refreshInProgress {
                 self.tokenRefresher.refreshAccessToken(
-                    self.token, scopes: nil, queue: self.mainQueue
+                    self.token, scopes: [], queue: self.queue
                 ) { [weak self] result in
                     self?.handleRefreshResult(result)
                 }

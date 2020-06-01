@@ -7,21 +7,35 @@ import Alamofire
 
 /// Completion handler for ApiRequest.
 enum RequestCompletionHandler {
+    /// Handler for data requests whose results are in memory.
     case dataCompletionHandler((DefaultDataResponse) -> Void)
+    /// Handler for download request which stores download result into a file.
     case downloadFileCompletionHandler((DefaultDownloadResponse) -> Void)
 }
 
 /// Protocol defining an API request object.
 protocol ApiRequest {
-    @discardableResult func progress(handler: @escaping Alamofire.Request.ProgressHandler) -> Self
-
+    /// Sets progress handler for the request.
+    ///
+    /// - Parameter handler: The progress handler.
+    ///
+    /// Progress handler should always be called back on the main queue.
     @discardableResult
-    func response(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self
+    func setProgressHandler(_ handler: @escaping Alamofire.Request.ProgressHandler) -> Self
 
+    /// Sets a completion handler for the request.
+    ///
+    /// - Parameters:
+    ///     - completionHandler The completion handler.
+    ///     - queue: The queue where the completion handler will be called from.
+    @discardableResult
+    func setCompletionHandler(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self
+
+    /// Cancels the request.
     func cancel()
 }
 
-/// A class that wraps a network request that calls DBX API.
+/// A class that wraps a network request that calls Dropbox API.
 /// This class will first attempt to refresh the access token and conditionally proceed to the actual API call.
 class RequestWithTokenRefresh: ApiRequest {
     typealias RequestCreationBlock = () -> Alamofire.Request
@@ -32,6 +46,11 @@ class RequestWithTokenRefresh: ApiRequest {
     private var progressHandler: Alamofire.Request.ProgressHandler?
     private let serialQueue = DispatchQueue(label: "RequestWithTokenRefresh.serial.queue", qos: .userInitiated)
 
+    /// Designated Initializer.
+    ///
+    /// - Parameters:
+    ///     - requestCreation: The block create the actual API request.
+    ///     - tokenProvider: The `AccessTokenProvider` to perform token refresh.
     init(requestCreation: @escaping RequestCreationBlock, tokenProvider: AccessTokenProvider) {
         tokenProvider.refreshAccessTokenIfNecessary { result in
             self.serialQueue.async {
@@ -40,10 +59,7 @@ class RequestWithTokenRefresh: ApiRequest {
         }
     }
 
-    /// - Parameters:
-    ///     - queue: The queue where the completionHandler should be called from.
-    ///     - completionHandler: The completion handler.
-    func response(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self {
+    func setCompletionHandler(queue: DispatchQueue?, completionHandler: RequestCompletionHandler) -> Self {
         serialQueue.async {
             self.responseQueue = queue
             self.completionHandler = completionHandler
@@ -52,10 +68,7 @@ class RequestWithTokenRefresh: ApiRequest {
         return self
     }
 
-    /// - Parameters:
-    ///     - handler: A ProgressHandler.
-    /// Progress handlerr will always be called back on Main Queue.
-    func progress(handler: @escaping Alamofire.Request.ProgressHandler) -> Self {
+    func setProgressHandler(_ handler: @escaping Alamofire.Request.ProgressHandler) -> Self {
         serialQueue.async {
             self.progressHandler = handler
             self.setProgressHandlerIfNecessary()
@@ -115,11 +128,11 @@ class RequestWithTokenRefresh: ApiRequest {
     private func setProgressHandlerIfNecessary() {
         guard let progressHandler = progressHandler else { return }
         if let uploadRequest = request as? Alamofire.UploadRequest {
-            uploadRequest.uploadProgress(closure: progressHandler)
+            uploadRequest.uploadProgress(queue: .main, closure: progressHandler)
         } else if let downloadRequest = request as? Alamofire.DownloadRequest {
-            downloadRequest.downloadProgress(closure: progressHandler)
+            downloadRequest.downloadProgress(queue: .main, closure: progressHandler)
         } else if let dataRequest = request as? Alamofire.DataRequest {
-            dataRequest.downloadProgress(closure: progressHandler)
+            dataRequest.downloadProgress(queue: .main, closure: progressHandler)
         }
     }
 

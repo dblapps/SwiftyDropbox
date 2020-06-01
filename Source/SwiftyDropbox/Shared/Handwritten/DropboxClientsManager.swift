@@ -122,7 +122,7 @@ open class DropboxClientsManager {
             if let result = result {
                 switch result {
                 case .success(let accessToken):
-                    DropboxClientsManager.authorizedClient = DropboxClient(accessToken: accessToken.accessToken)
+                    setupAuthorizedClient(accessToken, transportClient: nil)
                 case .cancel, .error:
                     break
                 }
@@ -138,7 +138,7 @@ open class DropboxClientsManager {
             if let result = result {
                 switch result {
                 case .success(let accessToken):
-                    DropboxClientsManager.authorizedTeamClient = DropboxTeamClient(accessToken: accessToken.accessToken)
+                    setupAuthorizedTeamClient(accessToken, transportClient: nil)
                 case .cancel, .error:
                     break
                 }

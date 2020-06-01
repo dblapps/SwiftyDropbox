@@ -576,7 +576,7 @@ open class RpcRequest<RSerial: JSONSerializer, ESerial: JSONSerializer>: Request
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (RSerial.ValueType?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.response(queue: queue, completionHandler: .dataCompletionHandler({ response in
+        request.setCompletionHandler(queue: queue, completionHandler: .dataCompletionHandler({ response in
             if let error = response.error {
                 completionHandler(nil, self.handleResponseError(response.response, data: response.data!, error: error))
             } else {
@@ -598,7 +598,7 @@ open class UploadRequest<RSerial: JSONSerializer, ESerial: JSONSerializer>: Requ
 
     @discardableResult
     public func progress(_ progressHandler: @escaping ((Progress) -> Void)) -> Self {
-        request.progress(handler: progressHandler)
+        request.setProgressHandler(progressHandler)
         return self
     }
 
@@ -611,7 +611,7 @@ open class UploadRequest<RSerial: JSONSerializer, ESerial: JSONSerializer>: Requ
         queue: DispatchQueue? = nil,
         completionHandler: @escaping (RSerial.ValueType?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.response(queue: queue, completionHandler: .dataCompletionHandler({ response in
+        request.setCompletionHandler(queue: queue, completionHandler: .dataCompletionHandler({ response in
             if let error = response.error {
                 completionHandler(nil, self.handleResponseError(response.response, data: response.data!, error: error))
             } else {
@@ -638,7 +638,7 @@ open class DownloadRequestFile<RSerial: JSONSerializer, ESerial: JSONSerializer>
 
     @discardableResult
     public func progress(_ progressHandler: @escaping ((Progress) -> Void)) -> Self {
-        request.progress(handler: progressHandler)
+        request.setProgressHandler(progressHandler)
         return self
     }
 
@@ -651,9 +651,11 @@ open class DownloadRequestFile<RSerial: JSONSerializer, ESerial: JSONSerializer>
         queue: DispatchQueue? = nil,
         completionHandler: @escaping ((RSerial.ValueType, URL)?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.response(queue: queue, completionHandler: .downloadFileCompletionHandler({ response in
+        request.setCompletionHandler(queue: queue, completionHandler: .downloadFileCompletionHandler({ response in
             if let error = response.error {
-                completionHandler(nil, self.handleResponseError(response.response, data: self.errorMessage, error: error))
+                completionHandler(
+                    nil, self.handleResponseError(response.response, data: self.errorMessage, error: error)
+                )
             } else {
                 let headerFields: [AnyHashable : Any] = response.response!.allHeaderFields
                 let result = caseInsensitiveLookup("Dropbox-Api-Result", dictionary: headerFields)!
@@ -678,7 +680,7 @@ open class DownloadRequestMemory<RSerial: JSONSerializer, ESerial: JSONSerialize
 
     @discardableResult
     public func progress(_ progressHandler: @escaping ((Progress) -> Void)) -> Self {
-        request.progress(handler: progressHandler)
+        request.setProgressHandler(progressHandler)
         return self
     }
 
@@ -691,7 +693,7 @@ open class DownloadRequestMemory<RSerial: JSONSerializer, ESerial: JSONSerialize
         queue: DispatchQueue? = nil,
         completionHandler: @escaping ((RSerial.ValueType, Data)?, CallError<ESerial.ValueType>?) -> Void
     ) -> Self {
-        request.response(queue: queue, completionHandler: .dataCompletionHandler({ response in
+        request.setCompletionHandler(queue: queue, completionHandler: .dataCompletionHandler({ response in
             if let error = response.error {
                 completionHandler(nil, self.handleResponseError(response.response, data: response.data, error: error))
             } else {

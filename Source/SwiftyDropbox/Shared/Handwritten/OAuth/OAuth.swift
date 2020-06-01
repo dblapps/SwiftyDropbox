@@ -17,9 +17,19 @@ public protocol SharedApplication: class {
 }
 
 public protocol AccessTokenRefreshing {
+    /// Refreshes a (short-lived) access token for a given DropboxAccessToken.
+    ///
+    /// - Parameters:
+    ///     - accessToken: A `DropboxAccessToken` object.
+    ///     - scopes: An array of scopes to be granted for the refreshed access token.
+    ///       The requested scope MUST NOT include any scope not originally granted.
+    ///       Useful if users want to reduce the granted scopes for the new access token.
+    ///       Pass in an empty array if you don't want to change scopes of the access token.
+    ///     - queue: The queue where completion block will be called from.
+    ///     - completion: A `DropboxOAuthCompletion` block to notify caller the result.
     func refreshAccessToken(
         _ accessToken: DropboxAccessToken,
-        scopes: [String]?,
+        scopes: [String],
         queue: DispatchQueue?,
         completion: @escaping DropboxOAuthCompletion
     )
@@ -386,16 +396,21 @@ open class DropboxOAuthManager: AccessTokenRefreshing {
     // MARK: Short-lived token support.
 
     /// Refreshes a (short-lived) access token for a given DropboxAccessToken.
+    ///
     /// - Parameters:
-    ///     - accessToken: A `DropboxAccessToken`.
-    ///     - scopes: An array of scopes for this refresh. The requested scope MUST NOT include any scope
-    ///       not originally granted. Useful if users want to reduce the granted scopes for the new access token.
+    ///     - accessToken: A `DropboxAccessToken` object.
+    ///     - scopes: An array of scopes to be granted for the refreshed access token.
+    ///       The requested scope MUST NOT include any scope not originally granted.
+    ///       Useful if users want to reduce the granted scopes for the new access token.
+    ///       Pass in an empty array if you don't want to change scopes of the access token.
     ///     - queue: The queue where completion block will be called from.
     ///     - completion: A `DropboxOAuthCompletion` block to notify caller the result.
+    ///
+    /// - NOTE: Completion block will be called on main queue if a callback queue is not provided.
     public func refreshAccessToken(
         _ accessToken: DropboxAccessToken,
-        scopes: [String]? = nil,
-        queue: DispatchQueue? = nil,
+        scopes: [String],
+        queue: DispatchQueue?,
         completion: @escaping DropboxOAuthCompletion
     ) {
         guard let refreshToken = accessToken.refreshToken else {
@@ -416,6 +431,7 @@ open class DropboxOAuthManager: AccessTokenRefreshing {
 
     /// Creates an `AccessTokenProvider` that wraps short-lived for token refresh
     /// or a static provider for long-live token.
+    /// - Parameter token: The `DropboxAccessToken` object.
     func accessTokenProviderForToken(_ token: DropboxAccessToken) -> AccessTokenProvider {
         if token.isShortLivedToken {
             return ShortLivedAccessTokenProvider(token: token, tokenRefresher: self)
@@ -442,6 +458,7 @@ open class DropboxAccessToken: CustomStringConvertible, Codable {
     /// The expiration time of the (short-lived) accessToken.
     public let tokenExpirationTimestamp: TimeInterval?
 
+    /// Indicates whether the access token is short-lived.
     var isShortLivedToken: Bool {
         refreshToken != nil && tokenExpirationTimestamp != nil
     }
@@ -518,6 +535,7 @@ public enum OAuth2Error: String, Error {
         self = Self.init(rawValue: errorCode) ?? .unknown
     }
 
+    /// Indicates whether the error is invalid_grant error.
     var isInvalidGrantError: Bool {
         if case .invalidGrant = self {
             return true
