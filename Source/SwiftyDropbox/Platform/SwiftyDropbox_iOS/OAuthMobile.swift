@@ -7,15 +7,6 @@ import SafariServices
 import UIKit
 import WebKit
 
-/// Protocol for handling loading status during auth flow.
-/// Implementing class could show custom UX to reflect loading status.
-public protocol LoadingStatusDelegate: class {
-    // Called when auth flow is loading/waiting for some data. e.g. Waiting for a network request to finish.
-    func showLoading()
-    // Called when auth flow finishes loading/waiting. e.g. A network request finished.
-    func dismissLoading()
-}
-
 extension DropboxClientsManager {
     /// Starts a "token" flow.
     ///
