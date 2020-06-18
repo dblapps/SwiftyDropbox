@@ -202,7 +202,7 @@ open class DropboxMobileOAuthManager: DropboxOAuthManager {
     private func handleCodeFlowUrl(
         _ url: URL, authSession: OAuthPKCESession, completion: @escaping DropboxOAuthCompletion
     ) {
-        let parametersMap = OAuthUtils.extractParamsFromUrl(url)
+        let parametersMap = OAuthUtils.extractDAuthResponseFromUrl(url)
 
         let state = parametersMap[OAuthConstants.stateKey]
         guard state == authSession.state else {
@@ -239,7 +239,7 @@ open class DropboxMobileOAuthManager: DropboxOAuthManager {
     /// ]
     /// ```
     private func extractFromTokenFlowUrl(_ url: URL) -> DropboxOAuthResult {
-        let parametersMap = OAuthUtils.extractParamsFromUrl(url)
+        let parametersMap = OAuthUtils.extractDAuthResponseFromUrl(url)
         let state = parametersMap[OAuthConstants.stateKey]
         if let nonce = UserDefaults.standard.object(forKey: kDBLinkNonce) as? String, state == "oauth2:\(nonce)",
             let accessToken = parametersMap[OAuthConstants.oauthSecretKey],
