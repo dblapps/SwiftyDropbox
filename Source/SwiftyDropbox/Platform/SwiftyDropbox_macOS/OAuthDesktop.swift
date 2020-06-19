@@ -32,7 +32,7 @@ extension DropboxClientsManager {
     ///     - sharedApplication: The shared NSWorkspace instance in your app.
     ///     - controller: An NSViewController to present the auth flow from.
     ///     - loadingStatusDelegate: An optional delegate to handle loading experience during auth flow.
-    ///       e.g. Show a looading spinner and block user interaction while loading/waiting.
+    ///       e.g. Show a loading spinner and block user interaction while loading/waiting.
     ///     - openURL: Handler to open a URL.
     ///     - scopeRequest: Contains requested scopes to obtain.
     /// - NOTE:
