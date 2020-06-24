@@ -13,7 +13,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var runBatchUploadTestsButton: UIButton!
     
     @IBAction func tokenFlowLinkButtonPressed(_ sender: AnyObject) {
-        DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self, openURL: {(url: URL) -> Void in UIApplication.shared.openURL(url)})
+        DropboxClientsManager.authorizeFromController(UIApplication.shared, controller: self, openURL: {(url: URL) -> Void in
+			UIApplication.shared.open(url, options: [:], completionHandler: nil)
+		})
     }
 
     @IBAction func codeFlowLinkButtonPressed(_ sender: Any) {
@@ -22,8 +24,11 @@ class ViewController: UIViewController {
             UIApplication.shared,
             controller: self,
             loadingStatusDelegate: nil,
-            openURL: { (url: URL) -> Void in UIApplication.shared.openURL(url) },
-            scopeRequest: scopeRequest)
+            openURL: { (url: URL) -> Void in
+				UIApplication.shared.open(url, options: [:], completionHandler: nil)
+			},
+            scopeRequest: scopeRequest
+		)
     }
 
     @IBAction func unlinkButtonPressed(_ sender: AnyObject) {

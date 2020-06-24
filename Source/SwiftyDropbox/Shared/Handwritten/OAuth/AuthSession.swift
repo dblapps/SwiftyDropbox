@@ -106,9 +106,9 @@ struct PkceData {
             CC_SHA256($0.baseAddress, UInt32(data.count), &digest)
         }
         /// Replace these characters to make the string safe to use in a URL.
-        return Data(bytes: digest).base64EncodedString()
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "=", with: "")
+		return Data(digest).base64EncodedString()
+			.replacingOccurrences(of: "/", with: "_")
+			.replacingOccurrences(of: "+", with: "-")
+			.replacingOccurrences(of: "=", with: "")
     }
 }

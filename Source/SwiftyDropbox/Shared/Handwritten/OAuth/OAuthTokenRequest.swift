@@ -6,9 +6,8 @@ import Foundation
 import Alamofire
 
 class OAuthTokenExchangeRequest {
-    private static let sessionManager: SessionManager = {
-        let sessionManager = SessionManager(configuration: .default)
-        sessionManager.startRequestsImmediately = false
+    private static let sessionManager: Session = {
+        let sessionManager = Session(configuration: .default, startRequestsImmediately: false)
         return sessionManager
     }()
 
@@ -16,10 +15,10 @@ class OAuthTokenExchangeRequest {
     private var retainSelf: OAuthTokenExchangeRequest?
 
     init(oauthCode: String, codeVerifier: String, appKey: String, locale: String, redirectUri: String) {
-        let headers = [
+		let headers: HTTPHeaders = HTTPHeaders([
             "User-Agent": ApiClientConstants.defaultUserAgent,
             "client_id": appKey
-        ]
+		])
         let params = [
             "grant_type": "authorization_code",
             "code": oauthCode,

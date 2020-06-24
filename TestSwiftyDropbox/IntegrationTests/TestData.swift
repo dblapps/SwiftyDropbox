@@ -39,13 +39,13 @@ open class TestData {
     // user-specific information
 
     // account ID of the user you OAuth linked with in order to test
-    static let accountId = "<ACCOUNT_ID1>"
+    static let accountId = "dl@codetanklabs.com"
     // any additional valid Dropbox account ID
-    static let accountId2 = "<ACCOUNT_ID2>"
+    static let accountId2 = "dl@codetanklabs.com"
     // any additional valid Dropbox account ID
-    static let accountId3 = "<ACCOUNT_ID3>"
+    static let accountId3 = "dl@codetanklabs.com"
     // the email address of the account whose account ID is `accoundId3`
-    static let accountId3Email = "<ACCOUNT_ID3_EMAIL>"
+    static let accountId3Email = "dl@codetanklabs.com"
     
     // team-specific data
     
@@ -59,8 +59,8 @@ open class TestData {
     // user-specific information
     
     // email address of the team user you OAuth link with in order to test
-    static let teamMemberEmail = "<TEAM_MEMBER_EMAIL>"
-    static let newMemberEmail = "<NEW_MEMBER_EMAIL>"
+    static let teamMemberEmail = "dl@codetanklabs.com"
+    static let newMemberEmail = "dl@codetanklabs.com"
     
     // App key and secret
     static let fullDropboxAppKey = "<FULL_DROPBOX_APP_KEY>";
