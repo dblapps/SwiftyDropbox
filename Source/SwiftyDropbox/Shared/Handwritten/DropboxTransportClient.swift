@@ -47,21 +47,26 @@ open class DropboxTransportClient {
 							  startRequestsImmediately: false,
 							  serverTrustManager: serverTrustPolicyManager)
 
-        let backgroundManager = { () -> Session in
-            let backgroundConfig = URLSessionConfiguration.background(withIdentifier: "com.dropbox.SwiftyDropbox." + UUID().uuidString)
-            if let sharedContainerIdentifier = sharedContainerIdentifier{
-                backgroundConfig.sharedContainerIdentifier = sharedContainerIdentifier
-            }
-            if let backgroundSessionDelegate = backgroundSessionDelegate {
-                return Session(configuration: backgroundConfig,
-							   delegate: backgroundSessionDelegate,
-							   startRequestsImmediately: false,
-							   serverTrustManager: serverTrustPolicyManager)
-            }
-            return Session(configuration: backgroundConfig,
-						   startRequestsImmediately: false,
-						   serverTrustManager: serverTrustPolicyManager)
-        }()
+		let backgroundManager = Session(configuration: config,
+							  delegate: delegate,
+							  startRequestsImmediately: false,
+							  serverTrustManager: serverTrustPolicyManager)
+
+//        let backgroundManager = { () -> Session in
+//            let backgroundConfig = URLSessionConfiguration.background(withIdentifier: "com.dropbox.SwiftyDropbox." + UUID().uuidString)
+//            if let sharedContainerIdentifier = sharedContainerIdentifier{
+//                backgroundConfig.sharedContainerIdentifier = sharedContainerIdentifier
+//            }
+//            if let backgroundSessionDelegate = backgroundSessionDelegate {
+//                return Session(configuration: backgroundConfig,
+//							   delegate: backgroundSessionDelegate,
+//							   startRequestsImmediately: false,
+//							   serverTrustManager: serverTrustPolicyManager)
+//            }
+//            return Session(configuration: backgroundConfig,
+//						   startRequestsImmediately: false,
+//						   serverTrustManager: serverTrustPolicyManager)
+//        }()
 
         let longpollConfig = URLSessionConfiguration.default
         longpollConfig.timeoutIntervalForRequest = 480.0
