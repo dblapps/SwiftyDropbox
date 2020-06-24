@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.homepage     = 'https://dropbox.com/developers/'
   s.license      = 'MIT'
   s.author       = { 'Stephen Cobbe' => 'scobbe@dropbox.com' }
-  s.source       = { :git => 'https://github.com/dropbox/SwiftyDropbox.git', :tag => s.version }
+  s.source       = { :git => 'https://github.com/dblapps/SwiftyDropbox.git', :tag => s.version }
 
   s.source_files = 'Source/SwiftyDropbox/Shared/**/*.{swift,h,m}'
   s.osx.source_files = 'Source/SwiftyDropbox/Platform/SwiftyDropbox_macOS/**/*.{swift,h,m}'
