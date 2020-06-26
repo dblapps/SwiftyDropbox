@@ -15,7 +15,7 @@ enum ApiClientConstants {
 
 open class DropboxTransportClient {
     public let manager: Session
-//    public let backgroundManager: Session
+    public let backgroundManager: Session
     public let longpollManager: Session
     open var accessToken: String
     open var selectUser: String?
@@ -47,21 +47,20 @@ open class DropboxTransportClient {
 							  startRequestsImmediately: false,
 							  serverTrustManager: serverTrustPolicyManager)
 
-//        let backgroundManager = { () -> Session in
-//            let backgroundConfig = URLSessionConfiguration.background(withIdentifier: "com.dropbox.SwiftyDropbox." + UUID().uuidString)
-//            if let sharedContainerIdentifier = sharedContainerIdentifier{
-//                backgroundConfig.sharedContainerIdentifier = sharedContainerIdentifier
-//            }
-//            if let backgroundSessionDelegate = backgroundSessionDelegate {
-//                return Session(configuration: backgroundConfig,
-//							   delegate: backgroundSessionDelegate,
-//							   startRequestsImmediately: false,
-//							   serverTrustManager: serverTrustPolicyManager)
-//            }
-//            return Session(configuration: backgroundConfig,
-//						   startRequestsImmediately: false,
-//						   serverTrustManager: serverTrustPolicyManager)
-//        }()
+        let backgroundManager = { () -> Session in
+            let backgroundConfig = URLSessionConfiguration.af.default
+            if let sharedContainerIdentifier = sharedContainerIdentifier{
+                backgroundConfig.sharedContainerIdentifier = sharedContainerIdentifier
+            }
+            if let backgroundSessionDelegate = backgroundSessionDelegate {
+                return Session(configuration: backgroundConfig,
+							   delegate: backgroundSessionDelegate,
+							   serverTrustManager: serverTrustPolicyManager)
+            }
+            return Session(configuration: backgroundConfig,
+						   startRequestsImmediately: false,
+						   serverTrustManager: serverTrustPolicyManager)
+        }()
 
         let longpollConfig = URLSessionConfiguration.default
         longpollConfig.timeoutIntervalForRequest = 480.0
@@ -81,7 +80,7 @@ open class DropboxTransportClient {
         let defaultUserAgent = ApiClientConstants.defaultUserAgent
 
         self.manager = manager
-//        self.backgroundManager = backgroundManager
+        self.backgroundManager = backgroundManager
         self.longpollManager = longpollManager
         self.accessToken = accessToken
         self.selectUser = selectUser
@@ -174,8 +173,7 @@ open class DropboxTransportClient {
         case let .data(data):
             request = self.manager.upload(data, to: url, method: .post, headers: headers)
         case let .file(file):
-//            request = self.backgroundManager.upload(file, to: url, method: .post, headers: headers)
-            request = self.manager.upload(file, to: url, method: .post, headers: headers)
+            request = self.backgroundManager.upload(file, to: url, method: .post, headers: headers)
         case let .stream(stream):
             request = self.manager.upload(stream, to: url, method: .post, headers: headers)
         }
@@ -229,8 +227,7 @@ open class DropboxTransportClient {
             return (finalUrl, [])
         }
 
-//        let request = self.backgroundManager.download(url, method: .post, headers: headers, to: destinationWrapper)
-        let request = self.manager.download(url, method: .post, headers: headers, to: destinationWrapper)
+        let request = self.backgroundManager.download(url, method: .post, headers: headers, to: destinationWrapper)
 
         let downloadRequestObj = DownloadRequestFile(request: request, responseSerializer: route.responseSerializer, errorSerializer: route.errorSerializer)
         _self = downloadRequestObj
@@ -251,8 +248,7 @@ open class DropboxTransportClient {
 
         let headers = getHeaders(routeStyle, jsonRequest: rawJsonRequest, host: host)
 
-//        let request = self.backgroundManager.request(url, method: .post, headers: headers)
-        let request = self.manager.request(url, method: .post, headers: headers)
+        let request = self.backgroundManager.request(url, method: .post, headers: headers)
 
         let downloadRequestObj = DownloadRequestMemory(request: request, responseSerializer: route.responseSerializer, errorSerializer: route.errorSerializer)
 
